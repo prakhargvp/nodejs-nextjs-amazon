@@ -1,22 +1,22 @@
 import React from 'react';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import data from '../../utils/data';
-import Layout from '../../components/Layout';
-import useStyle from '../../utils/styles';
+import Image from 'next/image';
 import {
-  Button,
-  Card,
   Grid,
   Link,
   List,
   ListItem,
   Typography,
+  Card,
+  Button,
 } from '@material-ui/core';
-import Image from 'next/image';
+import { useRouter } from 'next/router';
+import data from '../../utils/data';
+import Layout from '../../components/Layout';
+import useStyles from '../../utils/styles';
 
 export default function ProductScreen() {
-  const classes = useStyle();
+  const classes = useStyles();
   const router = useRouter();
   const { slug } = router.query;
   const product = data.products.find((a) => a.slug === slug);
@@ -27,7 +27,9 @@ export default function ProductScreen() {
     <Layout title={product.name} description={product.description}>
       <div className={classes.section}>
         <NextLink href="/" passHref>
-          <Link>back to products</Link>
+          <Link>
+            <Typography>back to products</Typography>
+          </Link>
         </NextLink>
       </div>
       <Grid container spacing={1}>
@@ -43,7 +45,9 @@ export default function ProductScreen() {
         <Grid item md={3} xs={12}>
           <List>
             <ListItem>
-              <Typography component="h1">{product.name}</Typography>
+              <Typography component="h1" variant="h1">
+                {product.name}
+              </Typography>
             </ListItem>
             <ListItem>
               <Typography>Category: {product.category}</Typography>
@@ -57,7 +61,7 @@ export default function ProductScreen() {
               </Typography>
             </ListItem>
             <ListItem>
-              <Typography>Description: {product.description}</Typography>
+              <Typography> Description: {product.description}</Typography>
             </ListItem>
           </List>
         </Grid>
