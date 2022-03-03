@@ -20,8 +20,9 @@ import {
   List,
   ListItem,
 } from '@material-ui/core';
+import dynamic from 'next/dynamic';
 
-export default function CartScreen() {
+function CartScreen() {
   const { state } = useContext(Store);
   const {
     cart: { cartItems },
@@ -117,3 +118,5 @@ export default function CartScreen() {
     </Layout>
   );
 }
+
+export default dynamic(() => Promise.resolve(CartScreen), { ssr: false });
