@@ -13,7 +13,7 @@ const initialState = {
       : {},
     paymentMethod: Cookies.get('paymentMethod')
       ? Cookies.get('paymentMethod')
-      : null,
+      : '',
   },
   userInfo: Cookies.get('userInfo')
     ? JSON.parse(Cookies.get('userInfo'))
