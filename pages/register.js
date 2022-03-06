@@ -16,6 +16,7 @@ import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 import { useSnackbar } from 'notistack';
 import { Controller, useForm } from 'react-hook-form';
+import { getError } from '../utils/error';
 
 export default function Login() {
   const {
@@ -50,17 +51,14 @@ export default function Login() {
       Cookies.set('userInfo', JSON.stringify(data));
       router.push(redirect || '/');
     } catch (err) {
-      enqueueSnackbar(
-        err.response.data ? err.response.data.message : err.message,
-        { variant: 'error' }
-      );
+      enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
   return (
     <Layout title="Login">
       <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
         <Typography component="h1" variant="h1">
-          Login
+          Register
         </Typography>
         <List>
           <ListItem>
