@@ -24,11 +24,13 @@ export default function Payment() {
   const [paymentMethod, setPaymentMethod] = useState('');
   const { state, dispatch } = useContext(Store);
   const {
-    cart: { shippingAddress },
+    cart: { shippingAddress, cartItems },
   } = state;
   useEffect(() => {
     if (!shippingAddress.address) {
       router.push('/shipping');
+    } else if (cartItems.length === 0) {
+      router.push('/cart');
     } else {
       setPaymentMethod(Cookies.get('paymentMethod') || '');
     }
