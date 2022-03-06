@@ -1,20 +1,18 @@
 import {
   Button,
-  Link,
   List,
   ListItem,
   TextField,
   Typography,
 } from '@material-ui/core';
 import React, { useContext, useEffect } from 'react';
-import NextLink from 'next/link';
 import Layout from '../components/Layout';
-import useStyle from '../utils/styles';
 import { useRouter } from 'next/router';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 import { Controller, useForm } from 'react-hook-form';
 import CheckoutWizard from '../components/checkoutWizard';
+import useStyle from '../utils/styles';
 
 export default function Shipping() {
   const {
@@ -27,11 +25,14 @@ export default function Shipping() {
   const { state, dispatch } = useContext(Store);
   const {
     userInfo,
-    cart: { shippingAddress },
+    cart: { shippingAddress, cartItems },
   } = state;
   useEffect(() => {
     if (!userInfo) {
       router.push('/login?redirect=/shipping');
+    }
+    if (cartItems.length === 0) {
+      router.push('/cart');
     }
     setValue('fullName', shippingAddress.fullName);
     setValue('address', shippingAddress.address);
