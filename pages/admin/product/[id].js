@@ -20,7 +20,6 @@ import Layout from '../../../components/Layout';
 import useStyles from '../../../utils/styles';
 import { Controller, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
-import Cookies from 'js-cookie';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -129,7 +128,7 @@ function ProductEdit({ params }) {
 
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
-      const { data } = await axios.put(
+      await axios.put(
         `/api/admin/products/${productId}`,
         {
           name,

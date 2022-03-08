@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import dynamic from 'next/dynamic';
 import Layout from '../../components/Layout';
 import { Store } from '../../utils/Store';
@@ -154,6 +154,7 @@ function Order({ params }) {
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
+        closeSnackbar();
         dispatch({ type: 'PAY_REQUEST' });
         const { data } = await axios.put(
           `/api/orders/${order._id}/pay`,

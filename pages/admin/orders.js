@@ -12,8 +12,6 @@ import {
   Card,
   Button,
   ListItemText,
-  CardContent,
-  CardActions,
   TableContainer,
   Table,
   TableHead,
@@ -21,7 +19,6 @@ import {
   TableCell,
   TableBody,
 } from '@material-ui/core';
-import { Bar } from 'react-chartjs-2';
 import { getError } from '../../utils/error';
 import { Store } from '../../utils/Store';
 import Layout from '../../components/Layout';
