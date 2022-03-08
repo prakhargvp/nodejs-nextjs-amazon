@@ -54,7 +54,7 @@ function reducer(state, action) {
   }
 }
 
-function Products() {
+function AdminProducts() {
   const { state } = useContext(Store);
   const router = useRouter();
   const classes = useStyles();
@@ -154,6 +154,11 @@ function Products() {
                   <ListItemText primary="Products"></ListItemText>
                 </ListItem>
               </NextLink>
+              <NextLink href="/admin/users" passHref>
+                <ListItem button component="a">
+                  <ListItemText primary="Users"></ListItemText>
+                </ListItem>
+              </NextLink>
             </List>
           </Card>
         </Grid>
@@ -242,4 +247,4 @@ function Products() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Products), { ssr: false });
+export default dynamic(() => Promise.resolve(AdminProducts), { ssr: false });
