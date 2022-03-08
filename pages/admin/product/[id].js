@@ -30,6 +30,12 @@ function reducer(state, action) {
       return { ...state, loading: false, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+    case 'UPDATE_REQUEST':
+      return { ...state, loadingUpdate: true, errorUpdate: '' };
+    case 'UPDATE_SUCCESS':
+      return { ...state, loadingUpdate: false, errorUpdate: '' };
+    case 'UPDATE_FAIL':
+      return { ...state, loadingUpdate: false, errorUpdate: action.payload };
     default:
       state;
   }
@@ -38,7 +44,7 @@ function reducer(state, action) {
 function ProductEdit({ params }) {
   const productId = params.id;
   const { state } = useContext(Store);
-  const [{ loading, error }, dispatch] = useReducer(reducer, {
+  const [{ loading, error, loadingUpdate }, dispatch] = useReducer(reducer, {
     loading: true,
     error: '',
   });
@@ -81,22 +87,41 @@ function ProductEdit({ params }) {
     }
   }, []);
 
-  const submitHandler = async ({ name }) => {
+  const submitHandler = async ({
+    name,
+    slug,
+    price,
+    category,
+    image,
+    brand,
+    countInStock,
+    description,
+  }) => {
     closeSnackbar();
 
     try {
+      dispatch({ type: 'UPDATE_REQUEST' });
       const { data } = await axios.put(
         `/api/admin/products/${productId}`,
         {
           name,
+          slug,
+          price,
+          category,
+          image,
+          brand,
+          countInStock,
+          description,
         },
         {
           headers: { authorization: `Bearer ${userInfo.token}` },
         }
       );
-
+      dispatch({ type: 'UPDATE_SUCCESS' });
       enqueueSnackbar('Product updated successfully', { variant: 'success' });
+      router.push('/admin/products');
     } catch (err) {
+      dispatch({ type: 'UPDATE_FAIL', payload: getError(err) });
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
@@ -341,6 +366,7 @@ function ProductEdit({ params }) {
                       >
                         Update
                       </Button>
+                      {loadingUpdate && <CircularProgress />}
                     </ListItem>
                   </List>
                 </form>
