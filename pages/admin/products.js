@@ -21,7 +21,7 @@ import {
   TableCell,
   TableBody,
 } from '@material-ui/core';
-import { Bar } from 'react-chartjs-2';
+import { useSnackbar } from 'notistack';
 import { getError } from '../../utils/error';
 import { Store } from '../../utils/Store';
 import Layout from '../../components/Layout';
@@ -35,6 +35,20 @@ function reducer(state, action) {
       return { ...state, loading: false, products: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+    case 'CREATE_REQUEST':
+      return { ...state, loadingCreate: true };
+    case 'CREATE_SUCCESS':
+      return { ...state, loadingCreate: false };
+    case 'CREATE_FAIL':
+      return { ...state, loadingCreate: false };
+    case 'DELETE_REQUEST':
+      return { ...state, loadingDelete: true };
+    case 'DELETE_SUCCESS':
+      return { ...state, loadingDelete: false, successDelete: true };
+    case 'DELETE_FAIL':
+      return { ...state, loadingDelete: false };
+    case 'DELETE_RESET':
+      return { ...state, loadingDelete: false, successDelete: false };
     default:
       state;
   }
@@ -45,8 +59,12 @@ function Products() {
   const router = useRouter();
   const classes = useStyles();
   const { userInfo } = state;
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const [{ loading, error, products }, dispatch] = useReducer(reducer, {
+  const [
+    { loading, error, products, loadingCreate, loadingDelete, successDelete },
+    dispatch,
+  ] = useReducer(reducer, {
     loading: true,
     products: [],
     error: '',
@@ -67,8 +85,54 @@ function Products() {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
-    fetchData();
-  }, []);
+    if (successDelete) {
+      dispatch({ type: 'DELETE_RESET' });
+    } else {
+      fetchData();
+    }
+  }, [successDelete]);
+
+  const createHandler = async () => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      closeSnackbar();
+      dispatch({ type: 'CREATE_REQUEST' });
+      const { data } = await axios.post(
+        `/api/admin/products`,
+        {},
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      );
+      dispatch({ type: 'CREATE_SUCCESS' });
+      enqueueSnackbar('Product created successfully', { variant: 'success' });
+      router.push(`/admin/product/${data.product._id}`);
+    } catch (err) {
+      dispatch({ type: 'CREATE_FAIL' });
+      enqueueSnackbar(getError(err), { variant: 'error' });
+    }
+  };
+
+  const deleteHandler = async (productId) => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      closeSnackbar();
+      dispatch({ type: 'DELETE_REQUEST' });
+      await axios.delete(`/api/admin/products/${productId}`, {
+        headers: { authorization: `Bearer ${userInfo.token}` },
+      });
+      dispatch({ type: 'DELETE_SUCCESS' });
+      enqueueSnackbar('Product deleted successfully', { variant: 'success' });
+    } catch (err) {
+      dispatch({ type: 'DELETE_FAIL' });
+      enqueueSnackbar(getError(err), { variant: 'error' });
+    }
+  };
+
   return (
     <Layout title="Order History">
       <Grid container spacing={1}>
@@ -97,9 +161,24 @@ function Products() {
           <Card className={classes.section}>
             <List>
               <ListItem>
-                <Typography componenet="h1" variant="h1">
-                  Products
-                </Typography>
+                <Grid container alignItems="center">
+                  <Grid item xs={6}>
+                    <Typography componenet="h1" variant="h1">
+                      Products
+                    </Typography>
+                    {loadingDelete && <CircularProgress />}
+                  </Grid>
+                  <Grid align="right" item xs={6}>
+                    <Button
+                      onClick={createHandler}
+                      color="primary"
+                      variant="contained"
+                    >
+                      Create
+                    </Button>
+                    {loadingCreate && <CircularProgress />}
+                  </Grid>
+                </Grid>
               </ListItem>
               <ListItem>
                 {loading ? (
@@ -140,7 +219,11 @@ function Products() {
                                   Edit
                                 </Button>
                               </NextLink>{' '}
-                              <Button size="small" variant="contained">
+                              <Button
+                                onClick={() => deleteHandler(product._id)}
+                                size="small"
+                                variant="contained"
+                              >
                                 Delete
                               </Button>
                             </TableCell>
