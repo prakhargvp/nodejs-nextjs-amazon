@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import {
@@ -15,11 +15,23 @@ import {
   Button,
   Menu,
   MenuItem,
+  Box,
+  IconButton,
+  Drawer,
+  ListItem,
+  List,
+  Divider,
+  ListItemText,
 } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
+import CancelIcon from '@material-ui/icons/Cancel';
 import useStyle from '../utils/styles';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import { useSnackbar } from 'notistack';
+import axios from 'axios';
+import { getError } from '../utils/error';
 
 export default function Layout({ title, description, children }) {
   const router = useRouter();
@@ -50,6 +62,28 @@ export default function Layout({ title, description, children }) {
     },
   });
   const classes = useStyle();
+  const [sidbarVisible, setSidebarVisible] = useState(false);
+  const sidebarOpenHandler = () => {
+    setSidebarVisible(true);
+  };
+  const sidebarCloseHandler = () => {
+    setSidebarVisible(false);
+  };
+
+  const [categories, setCategories] = useState([]);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const fetchCategories = async () => {
+    try {
+      const { data } = await axios.get(`/api/products/categories`);
+      setCategories(data);
+    } catch (err) {
+      enqueueSnackbar(getError(err), { variant: 'error' });
+    }
+  };
+  useEffect(() => {
+    fetchCategories();
+  });
   const darkModeChangeHandler = () => {
     dispatch({ type: darkMode ? 'DARK_MODE_OFF' : 'DARK_MODE_ON' });
     const newDarkMode = !darkMode;
@@ -82,12 +116,60 @@ export default function Layout({ title, description, children }) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppBar position="static" className={classes.navbar}>
-          <Toolbar>
-            <NextLink href="/" passHref>
-              <Link>
-                <Typography className={classes.brand}>amazon</Typography>
-              </Link>
-            </NextLink>
+          <Toolbar className={classes.toolbar}>
+            <Box display="flex" alignItems="center">
+              <IconButton
+                edge="start"
+                aria-label="open drawer"
+                onClick={sidebarOpenHandler}
+              >
+                <MenuIcon className={classes.navbarButton}></MenuIcon>
+              </IconButton>
+              <NextLink href="/" passHref>
+                <Link>
+                  <Typography className={classes.brand}>amazon</Typography>
+                </Link>
+              </NextLink>
+            </Box>
+            <Drawer
+              anchor="left"
+              open={sidbarVisible}
+              onClick={sidebarCloseHandler}
+            >
+              <List>
+                <ListItem>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Typography>Shopping by category</Typography>
+                    <IconButton
+                      aria-label="close"
+                      onClick={sidebarCloseHandler}
+                    >
+                      <CancelIcon />
+                    </IconButton>
+                  </Box>
+                </ListItem>
+                <Divider Light />
+                {categories.map((category) => (
+                  <NextLink
+                    key={category}
+                    href={`/search?category=${category}`}
+                    passHref
+                  >
+                    <ListItem
+                      button
+                      component="a"
+                      onClick={sidebarCloseHandler}
+                    >
+                      <ListItemText primary={category}></ListItemText>
+                    </ListItem>
+                  </NextLink>
+                ))}
+              </List>
+            </Drawer>
             <div className={classes.grow}></div>
             <div>
               <Switch
