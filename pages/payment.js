@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Store } from '../utils/Store';
 import Layout from '../components/Layout';
 import Form from '../components/Form';
-import CheckoutWizard from '../components/CheckoutWizard';
+import CheckoutWizard from '../components/checkoutWizard';
 import {
   Button,
   FormControl,
