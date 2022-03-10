@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 
-const useStyle = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
   navbar: {
     backgroundColor: '#203040',
     '& a': {
@@ -59,6 +59,7 @@ const useStyle = makeStyles((theme) => ({
   menuButton: {
     padding: 0,
   },
+  mt1: { marginTop: '1rem' },
   searchSection: {
     display: 'none',
     [theme.breakpoints.up('md')]: {
@@ -88,6 +89,9 @@ const useStyle = makeStyles((theme) => ({
       backgroundColor: '#f8c040',
     },
   },
+  sort: {
+    marginRight: 5,
+  },
 }));
 
-export default useStyle;
+export default useStyles;
