@@ -5,7 +5,7 @@ import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 import { Controller, useForm } from 'react-hook-form';
-import CheckoutWizard from '../components/CheckoutWizard';
+import CheckoutWizard from '../components/checkoutWizard';
 import Form from '../components/Form';
 
 export default function Shipping() {

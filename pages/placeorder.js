@@ -23,7 +23,7 @@ import {
 import classes from '../utils/classes';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import CheckoutWizard from '../components/CheckoutWizard';
+import CheckoutWizard from '../components/checkoutWizard';
 import { useSnackbar } from 'notistack';
 import { getError } from '../utils/error';
 import Cookies from 'js-cookie';
