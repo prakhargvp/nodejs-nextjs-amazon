@@ -1,24 +1,24 @@
 import {
-  Button,
-  Link,
   List,
   ListItem,
-  TextField,
   Typography,
-} from '@material-ui/core';
-import React, { useContext, useEffect } from 'react';
-import NextLink from 'next/link';
-import Layout from '../components/Layout';
-import useStyle from '../utils/styles';
+  TextField,
+  Button,
+  Link,
+} from '@mui/material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
+import React, { useContext, useEffect } from 'react';
+import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
-import { useSnackbar } from 'notistack';
 import { Controller, useForm } from 'react-hook-form';
+import { useSnackbar } from 'notistack';
 import { getError } from '../utils/error';
+import Form from '../components/Form';
 
-export default function Login() {
+export default function Register() {
   const {
     handleSubmit,
     control,
@@ -34,11 +34,10 @@ export default function Login() {
       router.push('/');
     }
   }, []);
-  const classes = useStyle();
   const submitHandler = async ({ name, email, password, confirmPassword }) => {
     closeSnackbar();
     if (password !== confirmPassword) {
-      enqueueSnackbar("password don't match.", { variant: 'error' });
+      enqueueSnackbar("Passwords don't match", { variant: 'error' });
       return;
     }
     try {
@@ -55,8 +54,8 @@ export default function Login() {
     }
   };
   return (
-    <Layout title="Login">
-      <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
+    <Layout title="Register">
+      <Form onSubmit={handleSubmit(submitHandler)}>
         <Typography component="h1" variant="h1">
           Register
         </Typography>
@@ -90,7 +89,6 @@ export default function Login() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="email"
@@ -120,7 +118,6 @@ export default function Login() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="password"
@@ -134,14 +131,14 @@ export default function Login() {
                 <TextField
                   variant="outlined"
                   fullWidth
-                  id="passowrd"
+                  id="password"
                   label="Password"
                   inputProps={{ type: 'password' }}
                   error={Boolean(errors.password)}
                   helperText={
                     errors.password
                       ? errors.password.type === 'minLength'
-                        ? 'Password length should be more than 5'
+                        ? 'Password length is more than 5'
                         : 'Password is required'
                       : ''
                   }
@@ -150,7 +147,6 @@ export default function Login() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="confirmPassword"
@@ -169,10 +165,10 @@ export default function Login() {
                   inputProps={{ type: 'password' }}
                   error={Boolean(errors.confirmPassword)}
                   helperText={
-                    errors.password
-                      ? errors.password.type === 'minLength'
-                        ? 'Confirm Password length should be more than 5'
-                        : 'Confirm Password is required'
+                    errors.confirmPassword
+                      ? errors.confirmPassword.type === 'minLength'
+                        ? 'Confirm Password length is more than 5'
+                        : 'Confirm  Password is required'
                       : ''
                   }
                   {...field}
@@ -180,13 +176,11 @@ export default function Login() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Button variant="contained" type="submit" fullWidth color="primary">
               Register
             </Button>
           </ListItem>
-
           <ListItem>
             Already have an account? &nbsp;
             <NextLink href={`/login?redirect=${redirect || '/'}`} passHref>
@@ -194,7 +188,7 @@ export default function Login() {
             </NextLink>
           </ListItem>
         </List>
-      </form>
+      </Form>
     </Layout>
   );
 }

@@ -1,18 +1,12 @@
-import {
-  Button,
-  List,
-  ListItem,
-  TextField,
-  Typography,
-} from '@material-ui/core';
+import { List, ListItem, Typography, TextField, Button } from '@mui/material';
+import { useRouter } from 'next/router';
 import React, { useContext, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useRouter } from 'next/router';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 import { Controller, useForm } from 'react-hook-form';
-import CheckoutWizard from '../components/checkoutWizard';
-import useStyle from '../utils/styles';
+import CheckoutWizard from '../components/CheckoutWizard';
+import Form from '../components/Form';
 
 export default function Shipping() {
   const {
@@ -20,19 +14,19 @@ export default function Shipping() {
     control,
     formState: { errors },
     setValue,
+    getValues,
   } = useForm();
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const {
     userInfo,
-    cart: { shippingAddress, cartItems },
+    cart: { shippingAddress },
   } = state;
+  const { location } = shippingAddress;
+
   useEffect(() => {
     if (!userInfo) {
       router.push('/login?redirect=/shipping');
-    }
-    if (cartItems.length === 0) {
-      router.push('/cart');
     }
     setValue('fullName', shippingAddress.fullName);
     setValue('address', shippingAddress.address);
@@ -40,23 +34,11 @@ export default function Shipping() {
     setValue('postalCode', shippingAddress.postalCode);
     setValue('country', shippingAddress.country);
   }, []);
-  const classes = useStyle();
-  const submitHandler = async ({
-    fullName,
-    address,
-    city,
-    postalCode,
-    country,
-  }) => {
+
+  const submitHandler = ({ fullName, address, city, postalCode, country }) => {
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
-      payload: {
-        fullName,
-        address,
-        city,
-        postalCode,
-        country,
-      },
+      payload: { fullName, address, city, postalCode, country, location },
     });
     Cookies.set(
       'shippingAddress',
@@ -66,14 +48,39 @@ export default function Shipping() {
         city,
         postalCode,
         country,
+        location,
       })
     );
     router.push('/payment');
   };
+
+  const chooseLocationHandler = () => {
+    const fullName = getValues('fullName');
+    const address = getValues('address');
+    const city = getValues('city');
+    const postalCode = getValues('postalCode');
+    const country = getValues('country');
+    dispatch({
+      type: 'SAVE_SHIPPING_ADDRESS',
+      payload: { fullName, address, city, postalCode, country },
+    });
+    Cookies.set(
+      'shippingAddress',
+      JSON.stringify({
+        fullName,
+        address,
+        city,
+        postalCode,
+        country,
+        location,
+      })
+    );
+    router.push('/map');
+  };
   return (
-    <Layout title="Shipping Adress">
+    <Layout title="Shipping Address">
       <CheckoutWizard activeStep={1} />
-      <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
+      <Form onSubmit={handleSubmit(submitHandler)}>
         <Typography component="h1" variant="h1">
           Shipping Address
         </Typography>
@@ -92,7 +99,7 @@ export default function Shipping() {
                   variant="outlined"
                   fullWidth
                   id="fullName"
-                  label="Name"
+                  label="Full Name"
                   error={Boolean(errors.fullName)}
                   helperText={
                     errors.fullName
@@ -106,7 +113,6 @@ export default function Shipping() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="address"
@@ -135,7 +141,6 @@ export default function Shipping() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="city"
@@ -164,7 +169,6 @@ export default function Shipping() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="postalCode"
@@ -193,7 +197,6 @@ export default function Shipping() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="country"
@@ -222,14 +225,26 @@ export default function Shipping() {
               )}
             ></Controller>
           </ListItem>
-
+          <ListItem>
+            <Button
+              variant="contained"
+              type="button"
+              color="secondary"
+              onClick={chooseLocationHandler}
+            >
+              Choose on map
+            </Button>
+            <Typography>
+              {location?.lat && `${location.lat}, ${location.lat}`}
+            </Typography>
+          </ListItem>
           <ListItem>
             <Button variant="contained" type="submit" fullWidth color="primary">
               Continue
             </Button>
           </ListItem>
         </List>
-      </form>
+      </Form>
     </Layout>
   );
 }

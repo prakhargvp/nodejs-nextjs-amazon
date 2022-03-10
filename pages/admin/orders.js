@@ -18,11 +18,11 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from '@material-ui/core';
+} from '@mui/material';
 import { getError } from '../../utils/error';
 import { Store } from '../../utils/Store';
 import Layout from '../../components/Layout';
-import useStyles from '../../utils/styles';
+import classes from '../../utils/classes';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -40,7 +40,7 @@ function reducer(state, action) {
 function AdminOrders() {
   const { state } = useContext(Store);
   const router = useRouter();
-  const classes = useStyles();
+
   const { userInfo } = state;
 
   const [{ loading, error, orders }, dispatch] = useReducer(reducer, {
@@ -67,10 +67,10 @@ function AdminOrders() {
     fetchData();
   }, []);
   return (
-    <Layout title="Order History">
+    <Layout title="Orders">
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <NextLink href="/admin/dashboard" passHref>
                 <ListItem button component="a">
@@ -96,18 +96,19 @@ function AdminOrders() {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
-                <Typography componenet="h1" variant="h1">
+                <Typography component="h1" variant="h1">
                   Orders
                 </Typography>
               </ListItem>
+
               <ListItem>
                 {loading ? (
                   <CircularProgress />
                 ) : error ? (
-                  <Typography className={classes.error}>{error}</Typography>
+                  <Typography sx={classes.error}>{error}</Typography>
                 ) : (
                   <TableContainer>
                     <Table>

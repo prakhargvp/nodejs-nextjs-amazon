@@ -15,13 +15,14 @@ import {
   CircularProgress,
   Checkbox,
   FormControlLabel,
-} from '@material-ui/core';
+} from '@mui/material';
 import { getError } from '../../../utils/error';
 import { Store } from '../../../utils/Store';
 import Layout from '../../../components/Layout';
-import useStyles from '../../../utils/styles';
 import { Controller, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
+import Form from '../../../components/Form';
+import classes from '../../../utils/classes';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -37,8 +38,19 @@ function reducer(state, action) {
       return { ...state, loadingUpdate: false, errorUpdate: '' };
     case 'UPDATE_FAIL':
       return { ...state, loadingUpdate: false, errorUpdate: action.payload };
+    case 'UPLOAD_REQUEST':
+      return { ...state, loadingUpload: true, errorUpload: '' };
+    case 'UPLOAD_SUCCESS':
+      return {
+        ...state,
+        loadingUpload: false,
+        errorUpload: '',
+      };
+    case 'UPLOAD_FAIL':
+      return { ...state, loadingUpload: false, errorUpload: action.payload };
+
     default:
-      state;
+      return state;
   }
 }
 
@@ -58,12 +70,12 @@ function UserEdit({ params }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
-  const classes = useStyles();
+
   const { userInfo } = state;
 
   useEffect(() => {
     if (!userInfo) {
-      router.push('/login');
+      return router.push('/login');
     } else {
       const fetchData = async () => {
         try {
@@ -78,14 +90,12 @@ function UserEdit({ params }) {
           dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
         }
       };
-
       fetchData();
     }
   }, []);
 
   const submitHandler = async ({ name }) => {
     closeSnackbar();
-
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(
@@ -94,9 +104,7 @@ function UserEdit({ params }) {
           name,
           isAdmin,
         },
-        {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        }
+        { headers: { authorization: `Bearer ${userInfo.token}` } }
       );
       dispatch({ type: 'UPDATE_SUCCESS' });
       enqueueSnackbar('User updated successfully', { variant: 'success' });
@@ -106,12 +114,11 @@ function UserEdit({ params }) {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
-
   return (
     <Layout title={`Edit User ${userId}`}>
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <NextLink href="/admin/dashboard" passHref>
                 <ListItem button component="a">
@@ -137,7 +144,7 @@ function UserEdit({ params }) {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h1" variant="h1">
@@ -146,15 +153,10 @@ function UserEdit({ params }) {
               </ListItem>
               <ListItem>
                 {loading && <CircularProgress></CircularProgress>}
-                {error && (
-                  <Typography className={classes.error}>{error}</Typography>
-                )}
+                {error && <Typography sx={classes.error}>{error}</Typography>}
               </ListItem>
               <ListItem>
-                <form
-                  onSubmit={handleSubmit(submitHandler)}
-                  className={classes.form}
-                >
+                <Form onSubmit={handleSubmit(submitHandler)}>
                   <List>
                     <ListItem>
                       <Controller
@@ -201,7 +203,7 @@ function UserEdit({ params }) {
                       {loadingUpdate && <CircularProgress />}
                     </ListItem>
                   </List>
-                </form>
+                </Form>
               </ListItem>
             </List>
           </Card>

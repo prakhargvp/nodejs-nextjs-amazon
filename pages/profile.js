@@ -1,7 +1,7 @@
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import NexLink from 'next/link';
+import NextLink from 'next/link';
 import React, { useEffect, useContext } from 'react';
 import {
   Grid,
@@ -12,11 +12,12 @@ import {
   Button,
   ListItemText,
   TextField,
-} from '@material-ui/core';
+} from '@mui/material';
 import { getError } from '../utils/error';
+import Form from '../components/Form';
 import { Store } from '../utils/Store';
 import Layout from '../components/Layout';
-import useStyles from '../utils/styles';
+import classes from '../utils/classes';
 import { Controller, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import Cookies from 'js-cookie';
@@ -31,21 +32,19 @@ function Profile() {
   } = useForm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
-  const classes = useStyles();
   const { userInfo } = state;
 
   useEffect(() => {
     if (!userInfo) {
-      router.push('/login');
+      return router.push('/login');
     }
     setValue('name', userInfo.name);
     setValue('email', userInfo.email);
   }, []);
-
   const submitHandler = async ({ name, email, password, confirmPassword }) => {
     closeSnackbar();
     if (password !== confirmPassword) {
-      enqueueSnackbar("password don't match.", { variant: 'error' });
+      enqueueSnackbar("Passwords don't match", { variant: 'error' });
       return;
     }
     try {
@@ -56,9 +55,7 @@ function Profile() {
           email,
           password,
         },
-        {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        }
+        { headers: { authorization: `Bearer ${userInfo.token}` } }
       );
       dispatch({ type: 'USER_LOGIN', payload: data });
       Cookies.set('userInfo', JSON.stringify(data));
@@ -68,28 +65,27 @@ function Profile() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
-
   return (
     <Layout title="Profile">
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
-              <NexLink href="/profile" passHref>
+              <NextLink href="/profile" passHref>
                 <ListItem selected button component="a">
                   <ListItemText primary="User Profile"></ListItemText>
                 </ListItem>
-              </NexLink>
-              <NexLink href="/order-history" passHref>
+              </NextLink>
+              <NextLink href="/order-history" passHref>
                 <ListItem button component="a">
                   <ListItemText primary="Order History"></ListItemText>
                 </ListItem>
-              </NexLink>
+              </NextLink>
             </List>
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h1" variant="h1">
@@ -97,10 +93,7 @@ function Profile() {
                 </Typography>
               </ListItem>
               <ListItem>
-                <form
-                  onSubmit={handleSubmit(submitHandler)}
-                  className={classes.form}
-                >
+                <Form onSubmit={handleSubmit(submitHandler)}>
                   <List>
                     <ListItem>
                       <Controller
@@ -131,7 +124,6 @@ function Profile() {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="email"
@@ -161,7 +153,6 @@ function Profile() {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="password"
@@ -171,27 +162,26 @@ function Profile() {
                           validate: (value) =>
                             value === '' ||
                             value.length > 5 ||
-                            'Password lenth is more than 5',
+                            'Password length is more than 5',
                         }}
                         render={({ field }) => (
                           <TextField
                             variant="outlined"
                             fullWidth
-                            id="passowrd"
+                            id="password"
                             label="Password"
                             inputProps={{ type: 'password' }}
                             error={Boolean(errors.password)}
                             helperText={
                               errors.password
-                                ? 'Password length should be more than 5'
-                                : 'Password is required'
+                                ? 'Password length is more than 5'
+                                : ''
                             }
                             {...field}
                           ></TextField>
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="confirmPassword"
@@ -201,7 +191,7 @@ function Profile() {
                           validate: (value) =>
                             value === '' ||
                             value.length > 5 ||
-                            'Confirm Password lenth is more than 5',
+                            'Confirm Password length is more than 5',
                         }}
                         render={({ field }) => (
                           <TextField
@@ -213,15 +203,14 @@ function Profile() {
                             error={Boolean(errors.confirmPassword)}
                             helperText={
                               errors.password
-                                ? 'Confirm Password length should be more than 5'
-                                : 'Confirm Password is required'
+                                ? 'Confirm Password length is more than 5'
+                                : ''
                             }
                             {...field}
                           ></TextField>
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Button
                         variant="contained"
@@ -233,7 +222,7 @@ function Profile() {
                       </Button>
                     </ListItem>
                   </List>
-                </form>
+                </Form>
               </ListItem>
             </List>
           </Card>

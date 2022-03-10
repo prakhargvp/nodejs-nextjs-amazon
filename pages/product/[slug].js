@@ -11,25 +11,28 @@ import {
   Button,
   TextField,
   CircularProgress,
-} from '@material-ui/core';
-import db from '../../utils/db';
-import Product from '../../models/Product';
+  Box,
+} from '@mui/material';
+import Rating from '@mui/material/Rating';
 import Layout from '../../components/Layout';
-import useStyles from '../../utils/styles';
-import { Store } from '../../utils/Store';
+import classes from '../../utils/classes';
+import Product from '../../models/Product';
+import db from '../../utils/db';
 import axios from 'axios';
-import { useRouter } from 'next/router';
-import { Rating } from '@material-ui/lab';
-import { useSnackbar } from 'notistack';
+import { Store } from '../../utils/Store';
 import { getError } from '../../utils/error';
+import { useRouter } from 'next/router';
+import { useSnackbar } from 'notistack';
+import Form from '../../components/Form';
 
 export default function ProductScreen(props) {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const { userInfo } = state;
-  const classes = useStyles();
-  const { enqueueSnackbar } = useSnackbar();
   const { product } = props;
+
+  const { enqueueSnackbar } = useSnackbar();
+
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -50,15 +53,14 @@ export default function ProductScreen(props) {
         }
       );
       setLoading(false);
-      enqueueSnackbar('Review submitted successfully', {
-        variant: 'success',
-      });
+      enqueueSnackbar('Review submitted successfully', { variant: 'success' });
       fetchReviews();
     } catch (err) {
       setLoading(false);
-      enqueueSnackbar(getError(err), { varaint: 'error' });
+      enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
+
   const fetchReviews = async () => {
     try {
       const { data } = await axios.get(`/api/products/${product._id}/reviews`);
@@ -67,21 +69,19 @@ export default function ProductScreen(props) {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
-
   useEffect(() => {
     fetchReviews();
   }, []);
 
   if (!product) {
-    return <div>Product Not Found</div>;
+    return <Box>Product Not Found</Box>;
   }
-
   const addToCartHandler = async () => {
     const existItem = state.cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
     if (data.countInStock < quantity) {
-      window.alert('Sorry. Product is out of stock.');
+      window.alert('Sorry. Product is out of stock');
       return;
     }
     dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
@@ -89,14 +89,14 @@ export default function ProductScreen(props) {
   };
 
   return (
-    <Layout title={product.name} description={product.description}>
-      <div className={classes.section}>
+    <Layout title={product.name}>
+      <Box sx={classes.section}>
         <NextLink href="/" passHref>
           <Link>
             <Typography>back to products</Typography>
           </Link>
         </NextLink>
-      </div>
+      </Box>
       <Grid container spacing={1}>
         <Grid item md={6} xs={12}>
           <Image
@@ -160,7 +160,6 @@ export default function ProductScreen(props) {
                 <Button
                   fullWidth
                   variant="contained"
-                  color="primary"
                   onClick={addToCartHandler}
                 >
                   Add to cart
@@ -180,13 +179,11 @@ export default function ProductScreen(props) {
         {reviews.map((review) => (
           <ListItem key={review._id}>
             <Grid container>
-              <Grid item className={classes.reviewItem}>
+              <Grid item sx={classes.reviewItem}>
                 <Typography>
                   <strong>{review.name}</strong>
                 </Typography>
-                <Typography>
-                  <p>{review.createdAt.substring(0, 10)}</p>
-                </Typography>
+                <Typography>{review.createdAt.substring(0, 10)}</Typography>
               </Grid>
               <Grid item>
                 <Rating value={review.rating} readOnly></Rating>
@@ -197,10 +194,10 @@ export default function ProductScreen(props) {
         ))}
         <ListItem>
           {userInfo ? (
-            <form onSubmit={submitHandler} className={classes.reviewForm}>
+            <Form onSubmit={submitHandler}>
               <List>
                 <ListItem>
-                  <Typography varaint="h2">Leave your review</Typography>
+                  <Typography variant="h2">Leave your review</Typography>
                 </ListItem>
                 <ListItem>
                   <TextField
@@ -211,7 +208,7 @@ export default function ProductScreen(props) {
                     label="Enter comment"
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                  ></TextField>
+                  />
                 </ListItem>
                 <ListItem>
                   <Rating
@@ -229,10 +226,11 @@ export default function ProductScreen(props) {
                   >
                     Submit
                   </Button>
-                  {loading && <CircularProgress />}
+
+                  {loading && <CircularProgress></CircularProgress>}
                 </ListItem>
               </List>
-            </form>
+            </Form>
           ) : (
             <Typography variant="h2">
               Please{' '}
@@ -251,6 +249,7 @@ export default function ProductScreen(props) {
 export async function getServerSideProps(context) {
   const { params } = context;
   const { slug } = params;
+
   await db.connect();
   const product = await Product.findOne({ slug }, '-reviews').lean();
   await db.disconnect();

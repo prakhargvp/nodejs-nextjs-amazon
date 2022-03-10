@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
+import React, { useContext, useEffect, useState } from 'react';
 import { Store } from '../utils/Store';
 import Layout from '../components/Layout';
-import CheckoutWizard from '../components/checkoutWizard';
-import useStyle from '../utils/styles';
+import Form from '../components/Form';
+import CheckoutWizard from '../components/CheckoutWizard';
 import {
   Button,
   FormControl,
@@ -14,23 +14,20 @@ import {
   Radio,
   RadioGroup,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useSnackbar } from 'notistack';
 
 export default function Payment() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const classes = useStyle();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState('');
   const { state, dispatch } = useContext(Store);
   const {
-    cart: { shippingAddress, cartItems },
+    cart: { shippingAddress },
   } = state;
   useEffect(() => {
     if (!shippingAddress.address) {
       router.push('/shipping');
-    } else if (cartItems.length === 0) {
-      router.push('/cart');
     } else {
       setPaymentMethod(Cookies.get('paymentMethod') || '');
     }
@@ -49,7 +46,7 @@ export default function Payment() {
   return (
     <Layout title="Payment Method">
       <CheckoutWizard activeStep={2}></CheckoutWizard>
-      <form className={classes.form} onSubmit={submitHandler}>
+      <Form onSubmit={submitHandler}>
         <Typography component="h1" variant="h1">
           Payment Method
         </Typography>
@@ -89,14 +86,15 @@ export default function Payment() {
             <Button
               fullWidth
               type="button"
-              variant="outlined"
+              variant="contained"
+              color="secondary"
               onClick={() => router.push('/shipping')}
             >
               Back
             </Button>
           </ListItem>
         </List>
-      </form>
+      </Form>
     </Layout>
   );
 }
