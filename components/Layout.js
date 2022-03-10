@@ -163,7 +163,7 @@ export default function Layout({ title, description, children }) {
                     </IconButton>
                   </Box>
                 </ListItem>
-                <Divider Light />
+                <Divider light />
                 {categories.map((category) => (
                   <NextLink
                     key={category}
