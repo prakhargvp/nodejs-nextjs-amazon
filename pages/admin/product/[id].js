@@ -15,13 +15,14 @@ import {
   CircularProgress,
   FormControlLabel,
   Checkbox,
-} from '@material-ui/core';
+} from '@mui/material';
 import { getError } from '../../../utils/error';
 import { Store } from '../../../utils/Store';
 import Layout from '../../../components/Layout';
-import useStyles from '../../../utils/styles';
 import { Controller, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
+import Form from '../../../components/Form';
+import classes from '../../../utils/classes';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -40,11 +41,16 @@ function reducer(state, action) {
     case 'UPLOAD_REQUEST':
       return { ...state, loadingUpload: true, errorUpload: '' };
     case 'UPLOAD_SUCCESS':
-      return { ...state, loadingUpload: false, errorUpload: '' };
+      return {
+        ...state,
+        loadingUpload: false,
+        errorUpload: '',
+      };
     case 'UPLOAD_FAIL':
       return { ...state, loadingUpload: false, errorUpload: action.payload };
+
     default:
-      state;
+      return state;
   }
 }
 
@@ -64,12 +70,12 @@ function ProductEdit({ params }) {
   } = useForm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
-  const classes = useStyles();
+
   const { userInfo } = state;
 
   useEffect(() => {
     if (!userInfo) {
-      router.push('/login');
+      return router.push('/login');
     } else {
       const fetchData = async () => {
         try {
@@ -92,13 +98,10 @@ function ProductEdit({ params }) {
           dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
         }
       };
-
       fetchData();
     }
   }, []);
-
   const uploadHandler = async (e, imageField = 'image') => {
-    console.log('Hi');
     const file = e.target.files[0];
     const bodyFormData = new FormData();
     bodyFormData.append('file', file);
@@ -118,19 +121,19 @@ function ProductEdit({ params }) {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
+
   const submitHandler = async ({
     name,
     slug,
     price,
     category,
     image,
+    featuredImage,
     brand,
     countInStock,
     description,
-    featuredImage,
   }) => {
     closeSnackbar();
-
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(
@@ -141,15 +144,13 @@ function ProductEdit({ params }) {
           price,
           category,
           image,
+          isFeatured,
+          featuredImage,
           brand,
           countInStock,
           description,
-          isFeatured,
-          featuredImage,
         },
-        {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        }
+        { headers: { authorization: `Bearer ${userInfo.token}` } }
       );
       dispatch({ type: 'UPDATE_SUCCESS' });
       enqueueSnackbar('Product updated successfully', { variant: 'success' });
@@ -161,11 +162,12 @@ function ProductEdit({ params }) {
   };
 
   const [isFeatured, setIsFeatured] = useState(false);
+
   return (
     <Layout title={`Edit Product ${productId}`}>
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <NextLink href="/admin/dashboard" passHref>
                 <ListItem button component="a">
@@ -191,7 +193,7 @@ function ProductEdit({ params }) {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h1" variant="h1">
@@ -200,15 +202,10 @@ function ProductEdit({ params }) {
               </ListItem>
               <ListItem>
                 {loading && <CircularProgress></CircularProgress>}
-                {error && (
-                  <Typography className={classes.error}>{error}</Typography>
-                )}
+                {error && <Typography sx={classes.error}>{error}</Typography>}
               </ListItem>
               <ListItem>
-                <form
-                  onSubmit={handleSubmit(submitHandler)}
-                  className={classes.form}
-                >
+                <Form onSubmit={handleSubmit(submitHandler)}>
                   <List>
                     <ListItem>
                       <Controller
@@ -231,7 +228,6 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="slug"
@@ -253,7 +249,6 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="price"
@@ -275,7 +270,6 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="image"
@@ -304,7 +298,6 @@ function ProductEdit({ params }) {
                       </Button>
                       {loadingUpload && <CircularProgress />}
                     </ListItem>
-
                     <ListItem>
                       <FormControlLabel
                         label="Is Featured"
@@ -317,7 +310,6 @@ function ProductEdit({ params }) {
                         }
                       ></FormControlLabel>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="featuredImage"
@@ -352,7 +344,6 @@ function ProductEdit({ params }) {
                       </Button>
                       {loadingUpload && <CircularProgress />}
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="category"
@@ -376,7 +367,6 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="brand"
@@ -398,7 +388,6 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="countInStock"
@@ -424,7 +413,6 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
                     <ListItem>
                       <Controller
                         name="description"
@@ -464,7 +452,7 @@ function ProductEdit({ params }) {
                       {loadingUpdate && <CircularProgress />}
                     </ListItem>
                   </List>
-                </form>
+                </Form>
               </ListItem>
             </List>
           </Card>

@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import NextLink from 'next/link';
@@ -13,31 +14,28 @@ import {
   TableRow,
   TableCell,
   Link,
+  CircularProgress,
   Button,
   Card,
   List,
   ListItem,
-  CircularProgress,
-} from '@material-ui/core';
-import dynamic from 'next/dynamic';
+} from '@mui/material';
+import classes from '../utils/classes';
+import axios from 'axios';
 import { useRouter } from 'next/router';
-import useStyle from '../utils/styles';
-import CheckoutWizard from '../components/checkoutWizard';
+import CheckoutWizard from '../components/CheckoutWizard';
 import { useSnackbar } from 'notistack';
 import { getError } from '../utils/error';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 
 function PlaceOrder() {
-  const classes = useStyle();
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const {
     userInfo,
     cart: { cartItems, shippingAddress, paymentMethod },
   } = state;
-
-  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
+  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100; // 123.456 => 123.46
   const itemsPrice = round2(
     cartItems.reduce((a, c) => a + c.price * c.quantity, 0)
   );
@@ -67,8 +65,8 @@ function PlaceOrder() {
           paymentMethod,
           itemsPrice,
           shippingPrice,
-          totalPrice,
           taxPrice,
+          totalPrice,
         },
         {
           headers: {
@@ -94,7 +92,7 @@ function PlaceOrder() {
 
       <Grid container spacing={1}>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h2" variant="h2">
@@ -104,11 +102,11 @@ function PlaceOrder() {
               <ListItem>
                 {shippingAddress.fullName}, {shippingAddress.address},{' '}
                 {shippingAddress.city}, {shippingAddress.postalCode},{' '}
-                {shippingAddress.country},
+                {shippingAddress.country}
               </ListItem>
             </List>
           </Card>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h2" variant="h2">
@@ -118,7 +116,7 @@ function PlaceOrder() {
               <ListItem>{paymentMethod}</ListItem>
             </List>
           </Card>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h2" variant="h2">
@@ -162,7 +160,9 @@ function PlaceOrder() {
                           <TableCell align="right">
                             <Typography>{item.quantity}</Typography>
                           </TableCell>
-                          <TableCell align="right">${item.price}</TableCell>
+                          <TableCell align="right">
+                            <Typography>${item.price}</Typography>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -173,7 +173,7 @@ function PlaceOrder() {
           </Card>
         </Grid>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography variant="h2">Order Summary</Typography>

@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
-import { Grid, Link, Typography } from '@material-ui/core';
+import NextLink from 'next/link';
+import { Grid, Link, Typography } from '@mui/material';
 import Layout from '../components/Layout';
 import db from '../utils/db';
 import Product from '../models/Product';
@@ -8,12 +8,11 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { Store } from '../utils/Store';
 import ProductItem from '../components/ProductItem';
-import useStyles from '../utils/styles';
-import Carousel from 'react-material-ui-carousel';
-import NextLink from 'next/link';
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import classes from '../utils/classes';
 
 export default function Home(props) {
-  const classes = useStyles();
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const { topRatedProducts, featuredProducts } = props;
@@ -22,7 +21,7 @@ export default function Home(props) {
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
     if (data.countInStock < quantity) {
-      window.alert('Sorry. Product is out of stock.');
+      window.alert('Sorry. Product is out of stock');
       return;
     }
     dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
@@ -30,24 +29,21 @@ export default function Home(props) {
   };
   return (
     <Layout>
-      <Carousel className={classes.mt1} animation="slide">
+      <Carousel>
         {featuredProducts.map((product) => (
           <NextLink
             key={product._id}
             href={`/product/${product.slug}`}
             passHref
           >
-            <Link>
-              <img
-                src={product.featuredImage}
-                alt={product.name}
-                className={classes.featuredImage}
-              />
+            <Link sx={classes.flex}>
+              <img src={product.featuredImage} alt={product.name}></img>
             </Link>
           </NextLink>
         ))}
       </Carousel>
-      <Typography variant="h2">Popular Products</Typography>
+
+      <Typography variant="h2">Popular Products 1</Typography>
       <Grid container spacing={3}>
         {topRatedProducts.map((product) => (
           <Grid item md={4} key={product.name}>
@@ -69,7 +65,7 @@ export async function getServerSideProps() {
     '-reviews'
   )
     .lean()
-    .limit(6);
+    .limit(3);
   const topRatedProductsDocs = await Product.find({}, '-reviews')
     .lean()
     .sort({

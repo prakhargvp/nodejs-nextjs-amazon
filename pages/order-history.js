@@ -1,7 +1,7 @@
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import NexLink from 'next/link';
+import NextLink from 'next/link';
 import React, { useEffect, useContext, useReducer } from 'react';
 import {
   CircularProgress,
@@ -18,11 +18,11 @@ import {
   TableBody,
   Button,
   ListItemText,
-} from '@material-ui/core';
+} from '@mui/material';
 import { getError } from '../utils/error';
 import { Store } from '../utils/Store';
 import Layout from '../components/Layout';
-import useStyles from '../utils/styles';
+import classes from '../utils/classes';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -40,7 +40,6 @@ function reducer(state, action) {
 function OrderHistory() {
   const { state } = useContext(Store);
   const router = useRouter();
-  const classes = useStyles();
   const { userInfo } = state;
 
   const [{ loading, error, orders }, dispatch] = useReducer(reducer, {
@@ -70,23 +69,23 @@ function OrderHistory() {
     <Layout title="Order History">
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
-              <NexLink href="/profile" passHref>
+              <NextLink href="/profile" passHref>
                 <ListItem button component="a">
                   <ListItemText primary="User Profile"></ListItemText>
                 </ListItem>
-              </NexLink>
-              <NexLink href="/order-history" passHref>
+              </NextLink>
+              <NextLink href="/order-history" passHref>
                 <ListItem selected button component="a">
                   <ListItemText primary="Order History"></ListItemText>
                 </ListItem>
-              </NexLink>
+              </NextLink>
             </List>
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Typography component="h1" variant="h1">
@@ -97,7 +96,7 @@ function OrderHistory() {
                 {loading ? (
                   <CircularProgress />
                 ) : error ? (
-                  <Typography className={classes.error}>{error}</Typography>
+                  <Typography sx={classes.error}>{error}</Typography>
                 ) : (
                   <TableContainer>
                     <Table>
@@ -128,9 +127,9 @@ function OrderHistory() {
                                 : 'not delivered'}
                             </TableCell>
                             <TableCell>
-                              <NexLink href={`/order/${order._id}`} passHref>
+                              <NextLink href={`/order/${order._id}`} passHref>
                                 <Button variant="contained">Details</Button>
-                              </NexLink>
+                              </NextLink>
                             </TableCell>
                           </TableRow>
                         ))}

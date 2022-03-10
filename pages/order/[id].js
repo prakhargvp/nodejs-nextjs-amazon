@@ -15,14 +15,15 @@ import {
   TableCell,
   Link,
   CircularProgress,
+  Button,
   Card,
   List,
   ListItem,
-  Button,
-} from '@material-ui/core';
+  Box,
+} from '@mui/material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useStyles from '../../utils/styles';
+import classes from '../../utils/classes';
 import { useSnackbar } from 'notistack';
 import { getError } from '../../utils/error';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
@@ -64,7 +65,7 @@ function reducer(state, action) {
 function Order({ params }) {
   const orderId = params.id;
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
-  const classes = useStyles();
+
   const router = useRouter();
   const { state } = useContext(Store);
   const { userInfo } = state;
@@ -136,7 +137,7 @@ function Order({ params }) {
       loadPaypalScript();
     }
   }, [order, successPay, successDeliver]);
-  const { closeSnackbar, enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   function createOrder(data, actions) {
     return actions.order
@@ -154,7 +155,6 @@ function Order({ params }) {
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
-        closeSnackbar();
         dispatch({ type: 'PAY_REQUEST' });
         const { data } = await axios.put(
           `/api/orders/${order._id}/pay`,
@@ -193,6 +193,7 @@ function Order({ params }) {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   }
+
   return (
     <Layout title={`Order ${orderId}`}>
       <Typography component="h1" variant="h1">
@@ -201,11 +202,11 @@ function Order({ params }) {
       {loading ? (
         <CircularProgress />
       ) : error ? (
-        <Typography className={classes.error}>{error}</Typography>
+        <Typography sx={classes.error}>{error}</Typography>
       ) : (
         <Grid container spacing={1}>
           <Grid item md={9} xs={12}>
-            <Card className={classes.section}>
+            <Card sx={classes.section}>
               <List>
                 <ListItem>
                   <Typography component="h2" variant="h2">
@@ -216,6 +217,16 @@ function Order({ params }) {
                   {shippingAddress.fullName}, {shippingAddress.address},{' '}
                   {shippingAddress.city}, {shippingAddress.postalCode},{' '}
                   {shippingAddress.country}
+                  &nbsp;
+                  {shippingAddress.location && (
+                    <Link
+                      variant="button"
+                      target="_new"
+                      href={`https://maps.google.com?q=${shippingAddress.location.lat},${shippingAddress.location.lng}`}
+                    >
+                      Show On Map
+                    </Link>
+                  )}
                 </ListItem>
                 <ListItem>
                   Status:{' '}
@@ -225,7 +236,7 @@ function Order({ params }) {
                 </ListItem>
               </List>
             </Card>
-            <Card className={classes.section}>
+            <Card sx={classes.section}>
               <List>
                 <ListItem>
                   <Typography component="h2" variant="h2">
@@ -238,7 +249,7 @@ function Order({ params }) {
                 </ListItem>
               </List>
             </Card>
-            <Card className={classes.section}>
+            <Card sx={classes.section}>
               <List>
                 <ListItem>
                   <Typography component="h2" variant="h2">
@@ -295,7 +306,7 @@ function Order({ params }) {
             </Card>
           </Grid>
           <Grid item md={3} xs={12}>
-            <Card className={classes.section}>
+            <Card sx={classes.section}>
               <List>
                 <ListItem>
                   <Typography variant="h2">Order Summary</Typography>
@@ -349,13 +360,13 @@ function Order({ params }) {
                     {isPending ? (
                       <CircularProgress />
                     ) : (
-                      <div className={classes.fullWidth}>
+                      <Box sx={classes.fullWidth}>
                         <PayPalButtons
                           createOrder={createOrder}
                           onApprove={onApprove}
                           onError={onError}
                         ></PayPalButtons>
-                      </div>
+                      </Box>
                     )}
                   </ListItem>
                 )}

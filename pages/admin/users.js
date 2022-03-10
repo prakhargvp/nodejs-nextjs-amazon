@@ -18,12 +18,12 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from '@material-ui/core';
-import { useSnackbar } from 'notistack';
+} from '@mui/material';
 import { getError } from '../../utils/error';
 import { Store } from '../../utils/Store';
 import Layout from '../../components/Layout';
-import useStyles from '../../utils/styles';
+import classes from '../../utils/classes';
+import { useSnackbar } from 'notistack';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -33,6 +33,7 @@ function reducer(state, action) {
       return { ...state, loading: false, users: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+
     case 'DELETE_REQUEST':
       return { ...state, loadingDelete: true };
     case 'DELETE_SUCCESS':
@@ -49,11 +50,10 @@ function reducer(state, action) {
 function AdminUsers() {
   const { state } = useContext(Store);
   const router = useRouter();
-  const classes = useStyles();
-  const { userInfo } = state;
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const [{ loading, error, users, loadingDelete, successDelete }, dispatch] =
+  const { userInfo } = state;
+
+  const [{ loading, error, users, successDelete, loadingDelete }, dispatch] =
     useReducer(reducer, {
       loading: true,
       users: [],
@@ -82,12 +82,13 @@ function AdminUsers() {
     }
   }, [successDelete]);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const deleteHandler = async (userId) => {
     if (!window.confirm('Are you sure?')) {
       return;
     }
     try {
-      closeSnackbar();
       dispatch({ type: 'DELETE_REQUEST' });
       await axios.delete(`/api/admin/users/${userId}`, {
         headers: { authorization: `Bearer ${userInfo.token}` },
@@ -99,12 +100,11 @@ function AdminUsers() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
-
   return (
-    <Layout title="Order History">
+    <Layout title="Users">
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <NextLink href="/admin/dashboard" passHref>
                 <ListItem button component="a">
@@ -130,23 +130,20 @@ function AdminUsers() {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
-                <Grid container alignItems="center">
-                  <Grid item xs={6}>
-                    <Typography componenet="h1" variant="h1">
-                      Users
-                    </Typography>
-                    {loadingDelete && <CircularProgress />}
-                  </Grid>
-                </Grid>
+                <Typography component="h1" variant="h1">
+                  Users
+                </Typography>
+                {loadingDelete && <CircularProgress />}
               </ListItem>
+
               <ListItem>
                 {loading ? (
                   <CircularProgress />
                 ) : error ? (
-                  <Typography className={classes.error}>{error}</Typography>
+                  <Typography sx={classes.error}>{error}</Typography>
                 ) : (
                   <TableContainer>
                     <Table>

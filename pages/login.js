@@ -1,22 +1,22 @@
 import {
-  Button,
-  Link,
   List,
   ListItem,
-  TextField,
   Typography,
-} from '@material-ui/core';
-import React, { useContext, useEffect } from 'react';
-import NextLink from 'next/link';
-import Layout from '../components/Layout';
-import useStyle from '../utils/styles';
+  TextField,
+  Button,
+  Link,
+} from '@mui/material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
+import React, { useContext, useEffect } from 'react';
+import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
 import { Controller, useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import { getError } from '../utils/error';
+import Form from '../components/Form';
 
 export default function Login() {
   const {
@@ -26,7 +26,7 @@ export default function Login() {
   } = useForm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
-  const { redirect } = router.query;
+  const { redirect } = router.query; // login?redirect=/shipping
   const { state, dispatch } = useContext(Store);
   const { userInfo } = state;
   useEffect(() => {
@@ -35,7 +35,6 @@ export default function Login() {
     }
   }, []);
 
-  const classes = useStyle();
   const submitHandler = async ({ email, password }) => {
     closeSnackbar();
     try {
@@ -52,7 +51,7 @@ export default function Login() {
   };
   return (
     <Layout title="Login">
-      <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
+      <Form onSubmit={handleSubmit(submitHandler)}>
         <Typography component="h1" variant="h1">
           Login
         </Typography>
@@ -86,7 +85,6 @@ export default function Login() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Controller
               name="password"
@@ -100,14 +98,14 @@ export default function Login() {
                 <TextField
                   variant="outlined"
                   fullWidth
-                  id="passowrd"
+                  id="password"
                   label="Password"
                   inputProps={{ type: 'password' }}
                   error={Boolean(errors.password)}
                   helperText={
                     errors.password
                       ? errors.password.type === 'minLength'
-                        ? 'Password length should be more than 5'
+                        ? 'Password length is more than 5'
                         : 'Password is required'
                       : ''
                   }
@@ -116,13 +114,11 @@ export default function Login() {
               )}
             ></Controller>
           </ListItem>
-
           <ListItem>
             <Button variant="contained" type="submit" fullWidth color="primary">
               Login
             </Button>
           </ListItem>
-
           <ListItem>
             Don&apos;t have an account? &nbsp;
             <NextLink href={`/register?redirect=${redirect || '/'}`} passHref>
@@ -130,7 +126,7 @@ export default function Login() {
             </NextLink>
           </ListItem>
         </List>
-      </form>
+      </Form>
     </Layout>
   );
 }

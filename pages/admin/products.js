@@ -18,12 +18,12 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from '@material-ui/core';
-import { useSnackbar } from 'notistack';
+} from '@mui/material';
 import { getError } from '../../utils/error';
 import { Store } from '../../utils/Store';
 import Layout from '../../components/Layout';
-import useStyles from '../../utils/styles';
+import classes from '../../utils/classes';
+import { useSnackbar } from 'notistack';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -52,15 +52,14 @@ function reducer(state, action) {
   }
 }
 
-function AdminProducts() {
+function AdminProdcuts() {
   const { state } = useContext(Store);
   const router = useRouter();
-  const classes = useStyles();
+
   const { userInfo } = state;
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [
-    { loading, error, products, loadingCreate, loadingDelete, successDelete },
+    { loading, error, products, loadingCreate, successDelete, loadingDelete },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
@@ -90,12 +89,12 @@ function AdminProducts() {
     }
   }, [successDelete]);
 
+  const { enqueueSnackbar } = useSnackbar();
   const createHandler = async () => {
     if (!window.confirm('Are you sure?')) {
       return;
     }
     try {
-      closeSnackbar();
       dispatch({ type: 'CREATE_REQUEST' });
       const { data } = await axios.post(
         `/api/admin/products`,
@@ -112,13 +111,11 @@ function AdminProducts() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
-
   const deleteHandler = async (productId) => {
     if (!window.confirm('Are you sure?')) {
       return;
     }
     try {
-      closeSnackbar();
       dispatch({ type: 'DELETE_REQUEST' });
       await axios.delete(`/api/admin/products/${productId}`, {
         headers: { authorization: `Bearer ${userInfo.token}` },
@@ -130,12 +127,11 @@ function AdminProducts() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
-
   return (
-    <Layout title="Order History">
+    <Layout title="Products">
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <NextLink href="/admin/dashboard" passHref>
                 <ListItem button component="a">
@@ -161,12 +157,12 @@ function AdminProducts() {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card sx={classes.section}>
             <List>
               <ListItem>
                 <Grid container alignItems="center">
                   <Grid item xs={6}>
-                    <Typography componenet="h1" variant="h1">
+                    <Typography component="h1" variant="h1">
                       Products
                     </Typography>
                     {loadingDelete && <CircularProgress />}
@@ -183,11 +179,12 @@ function AdminProducts() {
                   </Grid>
                 </Grid>
               </ListItem>
+
               <ListItem>
                 {loading ? (
                   <CircularProgress />
                 ) : error ? (
-                  <Typography className={classes.error}>{error}</Typography>
+                  <Typography sx={classes.error}>{error}</Typography>
                 ) : (
                   <TableContainer>
                     <Table>
@@ -218,7 +215,11 @@ function AdminProducts() {
                                 href={`/admin/product/${product._id}`}
                                 passHref
                               >
-                                <Button size="small" variant="contained">
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  color="secondary"
+                                >
                                   Edit
                                 </Button>
                               </NextLink>{' '}
@@ -226,6 +227,7 @@ function AdminProducts() {
                                 onClick={() => deleteHandler(product._id)}
                                 size="small"
                                 variant="contained"
+                                color="error"
                               >
                                 Delete
                               </Button>
@@ -245,4 +247,4 @@ function AdminProducts() {
   );
 }
 
-export default dynamic(() => Promise.resolve(AdminProducts), { ssr: false });
+export default dynamic(() => Promise.resolve(AdminProdcuts), { ssr: false });
