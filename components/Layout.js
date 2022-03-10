@@ -22,9 +22,11 @@ import {
   List,
   Divider,
   ListItemText,
+  InputBase,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import CancelIcon from '@material-ui/icons/Cancel';
+import SearchIcon from '@material-ui/icons/Search';
 import useStyle from '../utils/styles';
 import { Store } from '../utils/Store';
 import Cookies from 'js-cookie';
@@ -81,9 +83,17 @@ export default function Layout({ title, description, children }) {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
+  const [query, setQuery] = useState('');
+  const queryChangeHandler = (e) => {
+    setQuery(e.target.value);
+  };
+  const submitHandler = (e) => {
+    e.preventDefault();
+    router.push(`/search?query=${query}`);
+  };
   useEffect(() => {
     fetchCategories();
-  });
+  }, []);
   const darkModeChangeHandler = () => {
     dispatch({ type: darkMode ? 'DARK_MODE_OFF' : 'DARK_MODE_ON' });
     const newDarkMode = !darkMode;
@@ -122,6 +132,7 @@ export default function Layout({ title, description, children }) {
                 edge="start"
                 aria-label="open drawer"
                 onClick={sidebarOpenHandler}
+                className={classes.menuButton}
               >
                 <MenuIcon className={classes.navbarButton}></MenuIcon>
               </IconButton>
@@ -170,7 +181,23 @@ export default function Layout({ title, description, children }) {
                 ))}
               </List>
             </Drawer>
-            <div className={classes.grow}></div>
+            <div className={classes.searchSection}>
+              <form onSubmit={submitHandler} className={classes.searchForm}>
+                <InputBase
+                  name="query"
+                  className={classes.searchInput}
+                  placeholder="Search products"
+                  onChange={queryChangeHandler}
+                />
+                <IconButton
+                  type="submit"
+                  className={classes.iconButton}
+                  aria-label="search"
+                >
+                  <SearchIcon />
+                </IconButton>
+              </form>
+            </div>
             <div>
               <Switch
                 checked={darkMode}
@@ -178,16 +205,18 @@ export default function Layout({ title, description, children }) {
               ></Switch>
               <NextLink href="/cart" passHref>
                 <Link>
-                  {cart.cartItems.length > 0 ? (
-                    <Badge
-                      color="secondary"
-                      badgeContent={cart.cartItems.length}
-                    >
-                      Cart
-                    </Badge>
-                  ) : (
-                    'Cart'
-                  )}
+                  <Typography component="span">
+                    {cart.cartItems.length > 0 ? (
+                      <Badge
+                        color="secondary"
+                        badgeContent={cart.cartItems.length}
+                      >
+                        Cart
+                      </Badge>
+                    ) : (
+                      'Cart'
+                    )}
+                  </Typography>
                 </Link>
               </NextLink>
               {userInfo ? (
@@ -233,7 +262,9 @@ export default function Layout({ title, description, children }) {
                 </>
               ) : (
                 <NextLink href="/login" passHref>
-                  <Link>Login</Link>
+                  <Link>
+                    <Typography component="span">Login</Typography>
+                  </Link>
                 </NextLink>
               )}
             </div>
