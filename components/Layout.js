@@ -35,6 +35,7 @@ import {
   ListItemText,
   InputBase,
 } from '@mui/material';
+import NextNProgress from 'nextjs-progressbar';
 
 import { Store } from '../utils/Store';
 
@@ -142,6 +143,7 @@ export default function Layout({ title, description, children }) {
         {description && <meta name="description" content={description}></meta>}
       </Head>
       <ThemeProvider theme={theme}>
+        <NextNProgress />
         <CssBaseline />
         <AppBar position="static" sx={classes.appbar}>
           <Toolbar sx={classes.toolbar}>
